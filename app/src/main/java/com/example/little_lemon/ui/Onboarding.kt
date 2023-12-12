@@ -26,17 +26,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.little_lemon.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Onboarding(context: Context) {
+fun Onboarding(context: Context, navHostController: NavHostController) {
+    val  sharedPreferences = context.getSharedPreferences("0815", Context.MODE_PRIVATE)
     val scrollState = rememberScrollState()
     val firstName = remember {
         mutableStateOf("")
@@ -83,9 +86,8 @@ fun Onboarding(context: Context) {
             onValueChange ={
                            firstName.value = it
             },
-            label = { Text(text = "First Name")},
+            label = { Text(text = stringResource(id = R.string.firstName))},
             singleLine = true,
-            placeholder = { Text(text = "John")},
             modifier = Modifier.fillMaxWidth())
 
         OutlinedTextField(
@@ -93,9 +95,8 @@ fun Onboarding(context: Context) {
             onValueChange ={
                 lastName.value = it
             },
-            label = { Text(text = "Last Name")},
+            label = { Text(text = stringResource(id = R.string.lastName))},
             singleLine = true,
-            placeholder = { Text(text = "Doe")},
             modifier = Modifier.fillMaxWidth())
 
         OutlinedTextField(
@@ -103,16 +104,26 @@ fun Onboarding(context: Context) {
             onValueChange ={
                 email.value = it
             },
-            label = { Text(text = "Email")},
+            label = { Text(text = stringResource(id = R.string.email))},
             singleLine = true,
-            placeholder = { Text(text = "johndoe@gmail.com")},
-
             modifier = Modifier.fillMaxWidth())
 
         Button(colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),
             onClick = {
                 if (validateRegData(firstName.value, lastName.value, email.value))
                 {
+                    sharedPreferences.edit()
+                        .putString("firstName", firstName.value)
+                        .putString("lastName", lastName.value)
+                        .putString("email", email.value)
+                        .putBoolean("onBoarded", true)
+                        .apply()
+
+                    navHostController.navigate(Home.route){
+                        popUpTo(Onboarding.route){inclusive = true}
+                        launchSingleTop = true
+                    }
+
                     Toast.makeText(context,
                         "Registration Successful",
                         Toast.LENGTH_SHORT)
@@ -124,8 +135,6 @@ fun Onboarding(context: Context) {
                         Toast.LENGTH_SHORT)
                         .show()
                 }
-
-
                })
         {
             Text(text = "Register",
@@ -140,7 +149,7 @@ fun Onboarding(context: Context) {
 @Preview
 @Composable
 fun OnBoardingPreview() {
-    Onboarding(context = LocalContext.current)
+    Onboarding(context = LocalContext.current, navHostController = NavHostController(LocalContext.current))
 }
 
 fun validateRegData(firstName:String, lastName: String, email: String) =
