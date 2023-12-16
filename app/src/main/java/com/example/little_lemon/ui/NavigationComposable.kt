@@ -10,14 +10,14 @@ import androidx.navigation.compose.composable
 fun NavigationComposable(context: Context, navController: NavHostController) {
     val startDestination = Onboarding.route
 
-    NavHost(navController = navController, startDestination = startDestination){
-        composable(Onboarding.route){
-            Onboarding(context, navController)
+    NavHost(navController = navController, startDestination = startDestination) {
+        composable(Onboarding.route) {
+            Onboarding(navController)
         }
-        composable(Home.route){
-            Home()
+        composable(Home.route) {
+            Home(navController)
         }
-        composable(Profile.route){
+        composable(Profile.route) {
             Profile(context, navController)
         }
     }
